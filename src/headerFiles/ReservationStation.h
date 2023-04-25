@@ -19,6 +19,7 @@ public:
     ReservationStation(int size);
     void addReservationStationEntry(const ReservationStationEntry& reservationStationEntry);
     vector<ReservationStationEntry*> getReadyReservationStationEntries();
+    void updateRESEntriesWaitingOnROB(string rob, float value);
 };
 
 

@@ -29,6 +29,7 @@ RAT registerAllocationTable;
 RegisterFile registerFile;
 IntFunctionalUnit intFunctionalUnit(1);
 FPAddFunctionalUnit fpAddFunctionalUnit(3);
+ROB reorder_buffer(0);
 
 bool fileExists(string filePath) {
     return filesystem::exists(filePath);
@@ -203,13 +204,14 @@ void decodeInstructions(ROB reorder_buffer) {
         // add to corresponding reservation station. see if any of the operands are ready
         ReservationStationEntry reservationStationEntry = ReservationStationEntry(decodedInstruction.instruction_id,
                                                                                   decodedInstruction.instruction_type,
-                                                                                  "", "", decodedInstruction.source1,
+                                                                                  0.0, 0.0, decodedInstruction.source1,
                                                                                   decodedInstruction.source2,
                                                                                   robRef, true);
 
         // first operand
         if (isOperandReady(decodedInstruction.source1)) {
-            reservationStationEntry.vj = decodedInstruction.source1;
+            reservationStationEntry.vj = registerFile.getRegisterValue(decodedInstruction.source1);
+            reservationStationEntry.qj = "";
         } else {
             // result is coming from ROB
             reservationStationEntry.qj = registerAllocationTable.mappings[decodedInstruction.source1];
@@ -217,7 +219,12 @@ void decodeInstructions(ROB reorder_buffer) {
 
         // second operand
         if (isOperandReady(decodedInstruction.source2)) {
-            reservationStationEntry.vk = decodedInstruction.source2;
+            if (is_integer(decodedInstruction.source2)) {
+                reservationStationEntry.vk = stoi(decodedInstruction.source2);
+            } else {
+                reservationStationEntry.vk = registerFile.getRegisterValue(decodedInstruction.source2);
+            }
+            reservationStationEntry.qk = "";
         } else {
             reservationStationEntry.qk = decodedInstruction.source2;
         }
@@ -229,36 +236,42 @@ void decodeInstructions(ROB reorder_buffer) {
     }
 }
 
-void forwardingResult(int instructionID) {
+void forwardingResult(int instructionID, float value) {
+    // get the ROB ID that was associated with this instruction
+    ROBEntry robEntry = reorder_buffer.getROBEntrybyInstructionID(instructionID);
+    // update the value field in the ROB
+    robEntry.value = value;
+    reorder_buffer.updateROBEntry(robEntry);
 
+    // update the RES entries waiting on this ROB entry
+
+
+    // update the RAT table to show that the result has been written to the register
+    string destinationRegister = robEntry.destination_register;
+    registerAllocationTable.mappings[destinationRegister] = destinationRegister;
 }
 
 void executeIntInstructions() {
     vector<ReservationStationEntry*> readyRESEntries = intReservationStation.getReadyReservationStationEntries();
     for (ReservationStationEntry* resEntry : readyRESEntries) {
-        int operand1 = registerFile.intRegisters[resEntry->vj];
-        int operand2 ;
-        if(resEntry->op == "addi") {
-            operand2 = stoi(resEntry->vk);
-        } else {
-            operand2 = registerFile.intRegisters[resEntry->vk];
-        }
+        int operand1 = static_cast<int>(resEntry->vj);
+        int operand2 = static_cast<int>(resEntry->vk);
         resEntry->executing = true;
         intFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
     vector<int> instructions_executed = intFunctionalUnit.stallOrExecute();
+//    for (int instructionID : instructions_executed) {
+//        forwardingResult(instructionID, intFunctionalUnit.getResult(instructionID));
+//        // update RES entries
+//
+//    }
 }
 
 void executeFPAddInstructions() {
     vector<ReservationStationEntry*> readyRESEntries = fpAdd.getReadyReservationStationEntries();
     for (ReservationStationEntry* resEntry : readyRESEntries) {
-        float operand1 = registerFile.floatRegisters[resEntry->vj];
-        float operand2 ;
-        if(resEntry->op == "addi") {
-            operand2 = stof(resEntry->vk);
-        } else {
-            operand2 = registerFile.floatRegisters[resEntry->vk];
-        }
+        float operand1 = resEntry->vj;
+        float operand2 = resEntry->vk;
         resEntry->executing = true;
         fpAddFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
@@ -279,7 +292,7 @@ void executeStage() {
 
 void startProcessing() {
     int cycle = 1;
-    ROB reorder_buffer(NR);
+    reorder_buffer = ROB(NR);
 
     while (true) {
         cout << "******** Executing cycle " + to_string(cycle) + " *********" << std::endl;

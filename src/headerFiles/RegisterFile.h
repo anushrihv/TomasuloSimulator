@@ -15,6 +15,7 @@ public:
     map<string, float> floatRegisters;
 
     RegisterFile();
+    float getRegisterValue(string register_name);
 };
 
 

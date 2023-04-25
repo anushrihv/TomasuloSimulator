@@ -40,12 +40,11 @@ void ROB::updateROBEntry(ROBEntry robEntry) {
     }
 }
 
-int ROB::getROBIDbyInstructionID(int instructionID) {
+ROBEntry ROB::getROBEntrybyInstructionID(int instructionID) {
     for (int i = 0; i < size; i++) {
         if(rob_entries[i].instruction_id == instructionID) {
-            return i;
+            return rob_entries[i];
         }
     }
-
-    return -1;
+    return ROBEntry();
 }

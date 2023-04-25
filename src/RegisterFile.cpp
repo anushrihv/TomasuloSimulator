@@ -13,3 +13,13 @@ RegisterFile::RegisterFile() {
         floatRegisters[float_register_name] = 0.0;
     }
 }
+
+float RegisterFile::getRegisterValue(std::string register_name) {
+    char first_char = register_name.front();
+
+    if(first_char == 'R') {
+        return intRegisters[register_name];
+    } else {
+        return floatRegisters[register_name];
+    }
+}

@@ -10,7 +10,7 @@ ReservationStationEntry::ReservationStationEntry() {
     this->executing = false;
 }
 
-ReservationStationEntry::ReservationStationEntry(int instruction_id, string op, string vj, string vk,
+ReservationStationEntry::ReservationStationEntry(int instruction_id, string op, float vj, float vk,
                                                  string qj, string qk, string destination, bool busy) {
     this->instruction_id = instruction_id;
     this->op = op;

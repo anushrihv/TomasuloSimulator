@@ -14,8 +14,8 @@ public:
     bool busy;
     int instruction_id;
     string op;
-    string vj;
-    string vk;
+    float vj;
+    float vk;
     string qj;
     string qk;
     string destination;
@@ -23,7 +23,7 @@ public:
 
     ReservationStationEntry();
 
-    ReservationStationEntry(int instruction_id, string op, string vj, string vk, string qj, string qk,
+    ReservationStationEntry(int instruction_id, string op, float vj, float vk, string qj, string qk,
                             string destination, bool busy);
 
     void markExecuting();

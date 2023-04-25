@@ -21,7 +21,7 @@ public:
     bool isFull();
     int addROBEntry(ROBEntry robEntry);
     void updateROBEntry(ROBEntry robEntry);
-    int getROBIDbyInstructionID(int instructionID);
+    ROBEntry getROBEntrybyInstructionID(int instructionID);
 };
 
 

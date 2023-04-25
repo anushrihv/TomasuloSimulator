@@ -55,3 +55,7 @@ int IntFunctionalUnit::execute(tuple<int, int, int, string, int> instruction_to_
     int operand2 = get<2>(instruction_to_execute);
     return operand1 + operand2;
 }
+
+int IntFunctionalUnit::getResult(int instructionID) {
+    return results[instructionID];
+}

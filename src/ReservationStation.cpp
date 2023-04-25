@@ -5,6 +5,8 @@
 #include "headerFiles/ReservationStation.h"
 #include "iostream"
 
+using namespace std;
+
 ReservationStation::ReservationStation(int size) {
     this->max_size = size;
 }
@@ -25,11 +27,23 @@ vector<ReservationStationEntry*> ReservationStation::getReadyReservationStationE
     vector<ReservationStationEntry*> res;
 
     for (ReservationStationEntry& reservationStationEntry : this->reservation_station_entries) {
-        if(reservationStationEntry.vj != "" && reservationStationEntry.vk != "" && !reservationStationEntry.executing){
+        if(reservationStationEntry.qj == "" && reservationStationEntry.qk == "" && !reservationStationEntry.executing){
             res.push_back(&reservationStationEntry);
         }
     }
 
     return res;
+}
+
+void ReservationStation::updateRESEntriesWaitingOnROB(string rob, float value) {
+    for (ReservationStationEntry& reservationStationEntry : this->reservation_station_entries) {
+        if(reservationStationEntry.qj == "rob"){
+            reservationStationEntry.qj = "";
+            reservationStationEntry.vj = value;
+        } else if (reservationStationEntry.qk == "rob") {
+            reservationStationEntry.qk = "";
+            reservationStationEntry.vk = value;
+        }
+    }
 }
 
