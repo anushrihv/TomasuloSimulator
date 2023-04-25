@@ -20,3 +20,16 @@ void ReservationStation::addReservationStationEntry(const ReservationStationEntr
         cout << "Reservation station is full. Cannot add entry";
     }
 }
+
+vector<ReservationStationEntry*> ReservationStation::getReadyReservationStationEntries() {
+    vector<ReservationStationEntry*> res;
+
+    for (ReservationStationEntry& reservationStationEntry : this->reservation_station_entries) {
+        if(reservationStationEntry.vj != "" && reservationStationEntry.vk != "" && !reservationStationEntry.executing){
+            res.push_back(&reservationStationEntry);
+        }
+    }
+
+    return res;
+}
+

@@ -7,6 +7,7 @@
 
 ReservationStationEntry::ReservationStationEntry() {
     this->instruction_id=-1;
+    this->executing = false;
 }
 
 ReservationStationEntry::ReservationStationEntry(int instruction_id, string op, string vj, string vk,
@@ -19,4 +20,9 @@ ReservationStationEntry::ReservationStationEntry(int instruction_id, string op, 
     this->qk = qk;
     this->destination = destination;
     this->busy = busy;
+    this->executing = false;
+}
+
+void ReservationStationEntry::markExecuting() {
+    this->executing = true;
 }

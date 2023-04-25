@@ -11,7 +11,8 @@ using namespace std;
 
 class RegisterFile {
 public:
-    map<string, float> registers;
+    map<string, int> intRegisters;
+    map<string, float> floatRegisters;
 
     RegisterFile();
 };

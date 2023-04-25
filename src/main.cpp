@@ -8,6 +8,8 @@
 #include "headerFiles/DecodedInstruction.h"
 #include "headerFiles/RAT.h"
 #include <filesystem>
+#include "headerFiles/IntFunctionalUnit.h"
+#include "headerFiles/RegisterFile.h"
 
 using namespace std;
 
@@ -23,6 +25,8 @@ ReservationStation fpDiv(2);
 ReservationStation bu(1); // TODO mostly not gonna use this
 InstructionQueue instruction_queue;
 RAT registerAllocationTable;
+RegisterFile registerFile;
+IntFunctionalUnit intFunctionalUnit(1);
 
 bool fileExists(string filePath) {
     return filesystem::exists(filePath);
@@ -47,19 +51,24 @@ bool fetchInstructions(int startLineNumber) {
         lineNumber++;
     }
 
-    cout << "EXECUTING FETCH " << std::endl;
+    if (infile.eof()) {
+        return false;
+    }
+
+    cout << "FETCH STAGE" << std::endl;
     while (lineNumber < startLineNumber + NF) {
         // get NF instructions from the file
         getline(infile, instruction);
         cout << instruction << std::endl;
 
-        if (infile.eof()) {
-            break;
-        }
         // put it in the instruction queue
         instruction_queue.addNewInstruction(instruction);
         linesRead = true;
         lineNumber++;
+
+        if (infile.eof()) {
+            break;
+        }
     }
 
     return linesRead;
@@ -118,7 +127,7 @@ void decodeInstructions(ROB reorder_buffer) {
 
         // based on the instruction type, check if the corresponding reservation station is free
         string next_instruction = instruction_queue.peekNextInstruction();
-        cout << "Next instruction available to decode " << next_instruction << std::endl;
+        //cout << "Next instruction available to decode " << next_instruction << std::endl;
 
         istringstream stringstream(next_instruction);
         string operation, instructionID;
@@ -178,7 +187,7 @@ void decodeInstructions(ROB reorder_buffer) {
 
         // fetch the next instruction
         string instruction = instruction_queue.getNextInstruction();
-        cout << "EXECUTING DECODE " + instruction << std::endl;
+        cout << "DECODE STAGE " + instruction << std::endl;
         DecodedInstruction decodedInstruction(instruction);
         decodedInstruction = swapSourceAndDest(decodedInstruction); // for fsd
 
@@ -216,7 +225,27 @@ void decodeInstructions(ROB reorder_buffer) {
         // update RAT entry for this instruction's destination register
         registerAllocationTable.mappings[decodedInstruction.destination] = robRef;
     }
+}
 
+// for each functional unit
+// get ready RES entries
+// schedule it for execution
+void executeStage() {
+    // int functional unit
+    vector<ReservationStationEntry*> readyRESEntries = intReservationStation.getReadyReservationStationEntries();
+    for (ReservationStationEntry* resEntry : readyRESEntries) {
+        int operand1 = registerFile.intRegisters[resEntry->vj];
+        int operand2 ;
+        if(resEntry->op == "addi") {
+            operand2 = stoi(resEntry->vk);
+        } else {
+            operand2 = registerFile.intRegisters[resEntry->vk];
+        }
+        resEntry->executing = true;
+        intFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
+    }
+    intFunctionalUnit.stallOrExecute();
+    // forward the results to RES and mark them
 }
 
 void startProcessing() {
@@ -225,13 +254,17 @@ void startProcessing() {
 
     while (true) {
         cout << "******** Executing cycle " + to_string(cycle) + " *********" << std::endl;
+
+        // execute the ready operations
+        executeStage();
+
         // decode instructions fetched during the previous cycle's fetch stage
         decodeInstructions(reorder_buffer);
 
         // fetch stage
         fetchInstructions(((cycle - 1) * NF) + 1);
 
-        if (cycle == 2) {
+        if (cycle == 10) {
             break; // TODO change exit condition
         }
 

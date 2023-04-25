@@ -11,13 +11,14 @@
 using namespace std;
 
 class ReservationStation {
+public:
     int max_size;
     vector<ReservationStationEntry> reservation_station_entries;
 
-public:
     bool isFull();
     ReservationStation(int size);
     void addReservationStationEntry(const ReservationStationEntry& reservationStationEntry);
+    vector<ReservationStationEntry*> getReadyReservationStationEntries();
 };
 
 
