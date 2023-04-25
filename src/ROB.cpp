@@ -39,3 +39,13 @@ void ROB::updateROBEntry(ROBEntry robEntry) {
         }
     }
 }
+
+int ROB::getROBIDbyInstructionID(int instructionID) {
+    for (int i = 0; i < size; i++) {
+        if(rob_entries[i].instruction_id == instructionID) {
+            return i;
+        }
+    }
+
+    return -1;
+}

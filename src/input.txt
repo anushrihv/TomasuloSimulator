@@ -1,2 +1,2 @@
 addi R1, R0, 24
-addi R2, R0, 124
+fadd F0, F0, F4

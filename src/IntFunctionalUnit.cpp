@@ -20,8 +20,8 @@ void IntFunctionalUnit::scheduleExecution(int instruction_id, int operand1, int 
     this->executing_operations[instruction_id] = instruction_to_execute;
 }
 
-void IntFunctionalUnit::stallOrExecute() {
-    vector<int> instructions_to_remove;
+vector<int> IntFunctionalUnit::stallOrExecute() {
+    vector<int> instructions_executed;
     for (const auto& pair : executing_operations) {
         int instruction_id = pair.first;
         tuple<int, int, int, string, int> instruction = pair.second;
@@ -36,15 +36,18 @@ void IntFunctionalUnit::stallOrExecute() {
             this->results[instruction_id] = result;
 
             // remove from list of executing instructions
-            instructions_to_remove.push_back(instruction_id);
+            instructions_executed.push_back(instruction_id);
         } else {
-            get<0>(instruction) = cyclesRemaining;
+            executing_operations[instruction_id] = make_tuple(instruction_id, get<1>(instruction), get<2>(instruction),
+                                                              get<3>(instruction), cyclesRemaining);
         }
     }
 
-    for(int instructionID : instructions_to_remove) {
+    for(int instructionID : instructions_executed) {
         executing_operations.erase(instructionID);
     }
+
+    return instructions_executed;
 }
 
 int IntFunctionalUnit::execute(tuple<int, int, int, string, int> instruction_to_execute) {

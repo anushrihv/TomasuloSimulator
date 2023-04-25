@@ -10,6 +10,7 @@
 #include <filesystem>
 #include "headerFiles/IntFunctionalUnit.h"
 #include "headerFiles/RegisterFile.h"
+#include "headerFiles/FPAddFunctionalUnit.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ InstructionQueue instruction_queue;
 RAT registerAllocationTable;
 RegisterFile registerFile;
 IntFunctionalUnit intFunctionalUnit(1);
+FPAddFunctionalUnit fpAddFunctionalUnit(3);
 
 bool fileExists(string filePath) {
     return filesystem::exists(filePath);
@@ -227,11 +229,11 @@ void decodeInstructions(ROB reorder_buffer) {
     }
 }
 
-// for each functional unit
-// get ready RES entries
-// schedule it for execution
-void executeStage() {
-    // int functional unit
+void forwardingResult(int instructionID) {
+
+}
+
+void executeIntInstructions() {
     vector<ReservationStationEntry*> readyRESEntries = intReservationStation.getReadyReservationStationEntries();
     for (ReservationStationEntry* resEntry : readyRESEntries) {
         int operand1 = registerFile.intRegisters[resEntry->vj];
@@ -244,8 +246,35 @@ void executeStage() {
         resEntry->executing = true;
         intFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
-    intFunctionalUnit.stallOrExecute();
-    // forward the results to RES and mark them
+    vector<int> instructions_executed = intFunctionalUnit.stallOrExecute();
+}
+
+void executeFPAddInstructions() {
+    vector<ReservationStationEntry*> readyRESEntries = fpAdd.getReadyReservationStationEntries();
+    for (ReservationStationEntry* resEntry : readyRESEntries) {
+        float operand1 = registerFile.floatRegisters[resEntry->vj];
+        float operand2 ;
+        if(resEntry->op == "addi") {
+            operand2 = stof(resEntry->vk);
+        } else {
+            operand2 = registerFile.floatRegisters[resEntry->vk];
+        }
+        resEntry->executing = true;
+        fpAddFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
+    }
+    vector<int> instructions_executed = fpAddFunctionalUnit.stallOrExecute();
+    // TODO forward the results
+}
+
+// for each functional unit
+// get ready RES entries
+// schedule it for execution
+void executeStage() {
+    // int functional unit
+    executeIntInstructions();
+
+    // FPAdd functional unit
+    executeFPAddInstructions();
 }
 
 void startProcessing() {

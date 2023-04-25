@@ -24,7 +24,7 @@ public:
 
     IntFunctionalUnit(int latency);
     void scheduleExecution(int instruction_id, int operand1, int operand2, string operation_type);
-    void stallOrExecute();
+    vector<int> stallOrExecute();
     int execute(tuple<int, int, int, string, int> instruction_to_execute);
 };
 
