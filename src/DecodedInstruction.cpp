@@ -2,7 +2,7 @@
 // Created by Anushri Hatti on 4/22/23.
 //
 
-#include "DecodedInstruction.h"
+#include "headerFiles/DecodedInstruction.h"
 #include <string>
 #include <sstream>
 #include <vector>

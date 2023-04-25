@@ -149,7 +149,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/instruction_queue.h",
+			"path" : "src/headerFiles/instruction_queue.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -160,7 +160,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/ROBEntry.h",
+			"path" : "src/headerFiles/ROBEntry.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -171,7 +171,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/ROB.h",
+			"path" : "src/headerFiles/ROB.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -182,7 +182,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/ReservationStation.h",
+			"path" : "src/headerFiles/ReservationStation.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -193,7 +193,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/ReservationStationEntry.h",
+			"path" : "src/headerFiles/ReservationStationEntry.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -204,7 +204,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/DecodedInstruction.h",
+			"path" : "src/headerFiles/DecodedInstruction.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -215,7 +215,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/RAT.h",
+			"path" : "src/headerFiles/RAT.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -226,7 +226,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "src/RegisterFile.h",
+			"path" : "src/headerFiles/RegisterFile.h",
 			"sourceGroupIndex" : 1
 		}
 	],

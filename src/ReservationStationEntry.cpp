@@ -2,7 +2,7 @@
 // Created by Anushri Hatti on 4/22/23.
 //
 
-#include "ReservationStationEntry.h"
+#include "headerFiles/ReservationStationEntry.h"
 #include <string>
 
 ReservationStationEntry::ReservationStationEntry() {

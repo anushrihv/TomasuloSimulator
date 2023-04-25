@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
-#include "instruction_queue.h"
-#include "ROB.h"
-#include "ReservationStation.h"
+#include "headerFiles/instruction_queue.h"
+#include "headerFiles/ROB.h"
+#include "headerFiles/ReservationStation.h"
 #include "sstream"
 #include <string>
-#include "DecodedInstruction.h"
-#include "RAT.h"
+#include "headerFiles/DecodedInstruction.h"
+#include "headerFiles/RAT.h"
 #include <filesystem>
 
 using namespace std;
