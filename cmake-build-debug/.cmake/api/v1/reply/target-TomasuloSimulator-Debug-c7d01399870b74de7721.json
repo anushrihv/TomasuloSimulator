@@ -76,7 +76,8 @@
 				13,
 				15,
 				17,
-				19
+				19,
+				21
 			]
 		}
 	],
@@ -119,7 +120,8 @@
 				13,
 				15,
 				17,
-				19
+				19,
+				21
 			]
 		},
 		{
@@ -135,7 +137,8 @@
 				14,
 				16,
 				18,
-				20
+				20,
+				22
 			]
 		}
 	],
@@ -255,6 +258,17 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/headerFiles/FPAddFunctionalUnit.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/FPMulFunctionalUnit.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/headerFiles/FPMulFunctionalUnit.h",
 			"sourceGroupIndex" : 1
 		}
 	],
