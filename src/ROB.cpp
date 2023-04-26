@@ -76,4 +76,6 @@ ROBEntry ROB::getAndClearNextDoneInstruction() {
         robEntry = rob_entries[start];
         start = (start+1)%size;
     }
+
+    return robEntry;
 }

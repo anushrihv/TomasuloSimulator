@@ -170,19 +170,37 @@ void clearStateForExecutedInstructions(vector<int> instructionIDs, ReservationSt
     }
 }
 
+void print(vector<int> instructions) {
+    if(instructions.size() == 0) {
+        return;
+    }
+
+    cout<< "WRITE BACK STAGE for instructions ";
+    for (int i = 0; i < instructions.size(); i++) {
+        std::cout << instructions[i] << " ";
+    }
+    std::cout << std::endl;
+
+}
+
 void writeBackStage() {
     // get instructions that are executed
+
     vector<int> instructionIDs = getIntExecutedInstructions();
     clearStateForExecutedInstructions(instructionIDs, &intReservationStation);
+    print(instructionIDs);
 
     instructionIDs = getFPAddExecutedInstructions();
     clearStateForExecutedInstructions(instructionIDs, &fpAdd);
+    print(instructionIDs);
 
     instructionIDs = getFPMulExecutedInstructions();
     clearStateForExecutedInstructions(instructionIDs, &fpMul);
+    print(instructionIDs);
 
     instructionIDs = getFPDivExecutedInstructions();
     clearStateForExecutedInstructions(instructionIDs, &fpDiv);
+    print(instructionIDs);
 }
 
 void decodeInstructions() {
@@ -397,7 +415,24 @@ void executeStage() {
 
 void commitStage() {
     // move ROB pointers for done instructions in ROB
-    reorder_buffer.clearDoneInstructions();
+
+    ROBEntry robEntry = reorder_buffer.getAndClearNextDoneInstruction();
+    while(robEntry.instruction_id != -1) {
+        cout << "COMMIT STAGE for instruction " + to_string(robEntry.instruction_id) << std::endl;
+        // update RAT
+        string destination_register = robEntry.destination_register;
+        registerAllocationTable.mappings[destination_register] = destination_register;
+
+        // update register file
+        char first_char = destination_register.front();
+        if(first_char == 'R') {
+            registerFile.intRegisters[destination_register] = robEntry.value;
+        } else {
+            registerFile.floatRegisters[destination_register] = robEntry.value;
+        }
+
+        robEntry = reorder_buffer.getAndClearNextDoneInstruction();
+    }
 }
 
 void startProcessing() {
@@ -406,6 +441,9 @@ void startProcessing() {
 
     while (true) {
         cout << "******** Executing cycle " + to_string(cycle) + " *********" << std::endl;
+
+        // commit stage
+        commitStage();
 
         // write back
         writeBackStage();
