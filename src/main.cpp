@@ -210,6 +210,7 @@ void decodeInstructions() {
         }
 
         if (reorder_buffer.isFull()) {
+            execStalledDueToROBFull++;
             cout << "ROB is full. Cannot decode any new instructions";
             return;
         }
@@ -226,6 +227,7 @@ void decodeInstructions() {
 
         ReservationStation *reservationStationToAdd;
         if (operation == "fld" && loadBuffer.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "Load buffer is full";
             return;
         } else if (operation == "fld"){
@@ -233,6 +235,7 @@ void decodeInstructions() {
         }
 
         if (operation == "fsd" && storeBuffer.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "Store buffer is full";
             return;
         } else if(operation == "fsd"){
@@ -240,6 +243,7 @@ void decodeInstructions() {
         }
 
         if ((operation == "add" || operation == "addi") && intReservationStation.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "INT reservation station is full";
             return;
         } else if (operation == "add" || operation == "addi"){
@@ -247,6 +251,7 @@ void decodeInstructions() {
         }
 
         if ((operation == "fadd" || operation == "fsub") && fpAdd.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "FPADD reservation station is full";
             return;
         } else if(operation == "fadd" || operation == "fsub"){
@@ -254,6 +259,7 @@ void decodeInstructions() {
         }
 
         if (operation == "fmul" && fpMul.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "FPMUL reservation station is full";
             return;
         } else if(operation == "fmul"){
@@ -261,6 +267,7 @@ void decodeInstructions() {
         }
 
         if (operation == "fdiv" && fpDiv.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "FPDIV reservation station is full";
             return;
         } else if(operation == "fdiv"){
@@ -268,6 +275,7 @@ void decodeInstructions() {
         }
 
         if (operation == "bne" && bu.isFull()) {
+            execStalledByRESOccupancy++;
             cout << "BU reservation station is full";
             return;
         } else if(operation == "bne"){
@@ -465,7 +473,8 @@ void startProcessing() {
     }
 
     cout << "Number of cycles : " + to_string(cycle) << std::endl;
-
+    cout << "Number of executions stalled because the ROB was full " + to_string(execStalledDueToROBFull) << std::endl;
+    cout << "Number of executions stalled because the ROB was full " + to_string(execStalledByRESOccupancy) << std::endl;
 }
 
 int main(int argc, char *argv[]) {
