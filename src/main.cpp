@@ -168,8 +168,6 @@ void clearStateForExecutedInstructions(vector<int> instructionIDs, ReservationSt
 
         string destination_register = robEntry->destination_register;
     }
-
-    reorder_buffer.clearDoneInstructions();
 }
 
 void writeBackStage() {
@@ -399,7 +397,7 @@ void executeStage() {
 
 void commitStage() {
     // move ROB pointers for done instructions in ROB
-
+    reorder_buffer.clearDoneInstructions();
 }
 
 void startProcessing() {

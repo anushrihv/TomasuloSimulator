@@ -71,5 +71,9 @@ void ROB::clearDoneInstructions() {
 }
 
 ROBEntry ROB::getAndClearNextDoneInstruction() {
-
+    ROBEntry robEntry;
+    if(rob_entries[start].done) {
+        robEntry = rob_entries[start];
+        start = (start+1)%size;
+    }
 }
