@@ -1,3 +1,4 @@
 addi R1, R0, 24
 fadd F0, F0, F4
 fmul F0, F3, F2
+fdiv F7, F8, R1

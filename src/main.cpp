@@ -12,6 +12,7 @@
 #include "headerFiles/RegisterFile.h"
 #include "headerFiles/FPAddFunctionalUnit.h"
 #include "headerFiles/FPMulFunctionalUnit.h"
+#include "headerFiles/FPDivFunctionalUnit.h"
 
 using namespace std;
 
@@ -31,6 +32,7 @@ RegisterFile registerFile;
 IntFunctionalUnit intFunctionalUnit(1);
 FPAddFunctionalUnit fpAddFunctionalUnit(3);
 FPMulFunctionalUnit fpMulFunctionalUnit(4);
+FPDivFunctionalUnit fpDivFunctionalUnit(2);
 ROB reorder_buffer(0);
 
 bool fileExists(string filePath) {
@@ -293,6 +295,18 @@ void executeFPMulInstructions() {
     // TODO forward the results
 }
 
+void executeFPDivInstructions() {
+    vector<ReservationStationEntry*> readyRESEntries = fpDiv.getReadyReservationStationEntries();
+    for (ReservationStationEntry* resEntry : readyRESEntries) {
+        float operand1 = resEntry->vj;
+        float operand2 = resEntry->vk;
+        resEntry->executing = true;
+        fpDivFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
+    }
+    vector<int> instructions_executed = fpDivFunctionalUnit.stallOrExecute();
+    // TODO forward the results
+}
+
 // for each functional unit
 // get ready RES entries
 // schedule it for execution
@@ -305,6 +319,9 @@ void executeStage() {
 
     // FPMul functional unit
     executeFPMulInstructions();
+
+    // FPDiv functional unit
+    executeFPDivInstructions();
 }
 
 void startProcessing() {
