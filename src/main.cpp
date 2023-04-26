@@ -34,6 +34,7 @@ FPAddFunctionalUnit fpAddFunctionalUnit(3);
 FPMulFunctionalUnit fpMulFunctionalUnit(4);
 FPDivFunctionalUnit fpDivFunctionalUnit(2);
 ROB reorder_buffer(0);
+int execStalledByRESOccupancy = 0, execStalledDueToROBFull = 0, totalCycles = 0;
 
 bool fileExists(string filePath) {
     return filesystem::exists(filePath);
@@ -81,10 +82,6 @@ bool fetchInstructions(int startLineNumber) {
     return linesRead;
 }
 
-bool finishProcessing() {
-    return true;
-}
-
 bool is_integer(string s) {
     try {
         int i = stoi(s);
@@ -115,10 +112,11 @@ DecodedInstruction swapSourceAndDest(DecodedInstruction decodedInstruction) {
     return decodedInstruction;
 }
 
-void renameRegisters(DecodedInstruction decodedInstruction) {
-    // get the destination register
-    // get a free physical register
-    // update RAT table to use
+void writeBackStage() {
+    // get instructions that are executed
+    // get ROB entry for this instr
+    // change RAT table entry
+    //
 }
 
 void decodeInstructions(ROB reorder_buffer) {
@@ -230,7 +228,7 @@ void decodeInstructions(ROB reorder_buffer) {
             }
             reservationStationEntry.qk = "";
         } else {
-            reservationStationEntry.qk = decodedInstruction.source2;
+            reservationStationEntry.qk = registerAllocationTable.mappings[decodedInstruction.source2];
         }
 
         reservationStationToAdd->addReservationStationEntry(reservationStationEntry);
@@ -242,17 +240,16 @@ void decodeInstructions(ROB reorder_buffer) {
 
 void forwardingResult(int instructionID, float value) {
     // get the ROB ID that was associated with this instruction
-    ROBEntry robEntry = reorder_buffer.getROBEntrybyInstructionID(instructionID);
+    int robID = reorder_buffer.getROBIDbyInstructionID(instructionID);
+    ROBEntry* robEntry = reorder_buffer.getROBEntrybyInstructionID(instructionID);
     // update the value field in the ROB
-    robEntry.value = value;
-    reorder_buffer.updateROBEntry(robEntry);
-
+    robEntry->value = value;
     // update the RES entries waiting on this ROB entry
-
-
-    // update the RAT table to show that the result has been written to the register
-    string destinationRegister = robEntry.destination_register;
-    registerAllocationTable.mappings[destinationRegister] = destinationRegister;
+    string robRef = "ROB" + to_string(robID);
+    intReservationStation.updateRESEntriesWaitingOnROB(robRef, robEntry->value);
+    fpAdd.updateRESEntriesWaitingOnROB(robRef, robEntry->value);
+    fpMul.updateRESEntriesWaitingOnROB(robRef, robEntry->value);
+    fpDiv.updateRESEntriesWaitingOnROB(robRef, robEntry->value);
 }
 
 void executeIntInstructions() {
@@ -264,11 +261,10 @@ void executeIntInstructions() {
         intFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
     vector<int> instructions_executed = intFunctionalUnit.stallOrExecute();
-//    for (int instructionID : instructions_executed) {
-//        forwardingResult(instructionID, intFunctionalUnit.getResult(instructionID));
-//        // update RES entries
-//
-//    }
+    for (int instructionID : instructions_executed) {
+        // forwarding the result
+        forwardingResult(instructionID, intFunctionalUnit.getResult(instructionID));
+    }
 }
 
 void executeFPAddInstructions() {
@@ -280,7 +276,10 @@ void executeFPAddInstructions() {
         fpAddFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
     vector<int> instructions_executed = fpAddFunctionalUnit.stallOrExecute();
-    // TODO forward the results
+    for (int instructionID : instructions_executed) {
+        // forwarding the result
+        forwardingResult(instructionID, fpAddFunctionalUnit.getResult(instructionID));
+    }
 }
 
 void executeFPMulInstructions() {
@@ -292,7 +291,10 @@ void executeFPMulInstructions() {
         fpMulFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
     vector<int> instructions_executed = fpMulFunctionalUnit.stallOrExecute();
-    // TODO forward the results
+    for (int instructionID : instructions_executed) {
+        // forwarding the result
+        forwardingResult(instructionID, fpMulFunctionalUnit.getResult(instructionID));
+    }
 }
 
 void executeFPDivInstructions() {
@@ -304,7 +306,10 @@ void executeFPDivInstructions() {
         fpDivFunctionalUnit.scheduleExecution(resEntry->instruction_id, operand1, operand2, resEntry->op);
     }
     vector<int> instructions_executed = fpDivFunctionalUnit.stallOrExecute();
-    // TODO forward the results
+    for (int instructionID : instructions_executed) {
+        // forwarding the result
+        forwardingResult(instructionID, fpDivFunctionalUnit.getResult(instructionID));
+    }
 }
 
 // for each functional unit
@@ -331,7 +336,7 @@ void startProcessing() {
     while (true) {
         cout << "******** Executing cycle " + to_string(cycle) + " *********" << std::endl;
 
-        // execute the ready operations
+        // execute with forwarding
         executeStage();
 
         // decode instructions fetched during the previous cycle's fetch stage
@@ -340,12 +345,15 @@ void startProcessing() {
         // fetch stage
         fetchInstructions(((cycle - 1) * NF) + 1);
 
-        if (cycle == 10) {
-            break; // TODO change exit condition
+        if (reorder_buffer.isEmpty() || cycle == 100) {
+            break;
         }
 
         cycle++;
     }
+
+    cout << "Number of cycles : " + to_string(cycle) << std::endl;
+
 }
 
 int main(int argc, char *argv[]) {

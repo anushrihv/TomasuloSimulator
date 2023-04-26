@@ -53,3 +53,7 @@ float FPMulFunctionalUnit::execute(tuple<int, float, float, std::string, int> in
     float operand2 = get<2>(instruction_to_execute);
     return operand1 * operand2;
 }
+
+int FPMulFunctionalUnit::getResult(int instructionID) {
+    return results[instructionID];
+}

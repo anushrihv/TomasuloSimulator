@@ -19,9 +19,11 @@ private:
 public:
     ROB(int size);
     bool isFull();
+    bool isEmpty();
     int addROBEntry(ROBEntry robEntry);
-    void updateROBEntry(ROBEntry robEntry);
-    ROBEntry getROBEntrybyInstructionID(int instructionID);
+    void updateROBEntry(const ROBEntry& robEntry);
+    ROBEntry* getROBEntrybyInstructionID(int instructionID);
+    int getROBIDbyInstructionID(int instructionID);
 };
 
 

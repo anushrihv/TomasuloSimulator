@@ -57,3 +57,7 @@ float FPAddFunctionalUnit::execute(tuple<int, float, float, string, int> instruc
         return operand1 - operand2;
     }
 }
+
+int FPAddFunctionalUnit::getResult(int instructionID) {
+    return results[instructionID];
+}

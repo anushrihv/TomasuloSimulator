@@ -18,6 +18,10 @@ bool ROB::isFull() {
     return ((end + 1) % this->size) == start;
 }
 
+bool ROB::isEmpty() {
+    return start == end;
+}
+
 int ROB::addROBEntry(ROBEntry robEntry) {
     int robEntryID;
     if (isFull()) {
@@ -30,7 +34,7 @@ int ROB::addROBEntry(ROBEntry robEntry) {
     return robEntryID;
 }
 
-void ROB::updateROBEntry(ROBEntry robEntry) {
+void ROB::updateROBEntry(const ROBEntry& robEntry) {
     for (int i = 0; i < size; i++) {
         if(rob_entries[i].instruction_id == robEntry.instruction_id) {
             rob_entries[i] = robEntry;
@@ -40,11 +44,22 @@ void ROB::updateROBEntry(ROBEntry robEntry) {
     }
 }
 
-ROBEntry ROB::getROBEntrybyInstructionID(int instructionID) {
+ROBEntry* ROB::getROBEntrybyInstructionID(int instructionID) {
     for (int i = 0; i < size; i++) {
         if(rob_entries[i].instruction_id == instructionID) {
-            return rob_entries[i];
+            return &rob_entries[i];
         }
     }
-    return ROBEntry();
+    ROBEntry* robEntry = new ROBEntry();
+    return robEntry;
+}
+
+int ROB::getROBIDbyInstructionID(int instructionID) {
+    for (int i = 0; i < size; i++) {
+        if(rob_entries[i].instruction_id == instructionID) {
+            return i;
+        }
+    }
+
+    return -1;
 }

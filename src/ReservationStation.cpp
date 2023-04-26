@@ -35,12 +35,12 @@ vector<ReservationStationEntry*> ReservationStation::getReadyReservationStationE
     return res;
 }
 
-void ReservationStation::updateRESEntriesWaitingOnROB(string rob, float value) {
+void ReservationStation::updateRESEntriesWaitingOnROB(const string& rob, float value) {
     for (ReservationStationEntry& reservationStationEntry : this->reservation_station_entries) {
-        if(reservationStationEntry.qj == "rob"){
+        if(reservationStationEntry.qj == rob){
             reservationStationEntry.qj = "";
             reservationStationEntry.vj = value;
-        } else if (reservationStationEntry.qk == "rob") {
+        } else if (reservationStationEntry.qk == rob) {
             reservationStationEntry.qk = "";
             reservationStationEntry.vk = value;
         }

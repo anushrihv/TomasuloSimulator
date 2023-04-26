@@ -23,6 +23,7 @@ public:
     void scheduleExecution(int instruction_id, float operand1, float operand2, string operation_type);
     vector<int> stallOrExecute();
     float execute(tuple<int, float, float, string, int> instruction_to_execute);
+    int getResult(int instructionID);
 };
 
 
