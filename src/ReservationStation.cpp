@@ -47,3 +47,20 @@ void ReservationStation::updateRESEntriesWaitingOnROB(const string& rob, float v
     }
 }
 
+void ReservationStation::removeRESEntry(int instructionID) {
+    int index = -1;
+
+    for (int i = 0; i < reservation_station_entries.size(); i++) {
+        ReservationStationEntry& reservationStationEntry = reservation_station_entries[i];
+        if(reservationStationEntry.instruction_id == instructionID) {
+            index = i;
+            break;
+        }
+    }
+
+    if(index >= 0){
+        reservation_station_entries.erase(reservation_station_entries.begin() + index);
+    }
+
+}
+

@@ -24,6 +24,8 @@ public:
     void updateROBEntry(const ROBEntry& robEntry);
     ROBEntry* getROBEntrybyInstructionID(int instructionID);
     int getROBIDbyInstructionID(int instructionID);
+    void clearDoneInstructions();
+    ROBEntry getAndClearNextDoneInstruction();
 };
 
 

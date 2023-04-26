@@ -112,14 +112,82 @@ DecodedInstruction swapSourceAndDest(DecodedInstruction decodedInstruction) {
     return decodedInstruction;
 }
 
-void writeBackStage() {
-    // get instructions that are executed
-    // get ROB entry for this instr
-    // change RAT table entry
-    //
+vector<int> getFPDivExecutedInstructions() {
+    vector<int> instructionIDs;
+    for (const auto& pair : fpDivFunctionalUnit.results) {
+        int instructionID = pair.first;
+        instructionIDs.push_back(instructionID);
+    }
+
+    fpDivFunctionalUnit.results.clear();
+    return instructionIDs;
 }
 
-void decodeInstructions(ROB reorder_buffer) {
+vector<int> getFPMulExecutedInstructions() {
+    vector<int> instructionIDs;
+    for (const auto& pair : fpMulFunctionalUnit.results) {
+        int instructionID = pair.first;
+        instructionIDs.push_back(instructionID);
+    }
+
+    fpMulFunctionalUnit.results.clear();
+    return instructionIDs;
+}
+
+vector<int> getFPAddExecutedInstructions() {
+    vector<int> instructionIDs;
+    for (const auto& pair : fpAddFunctionalUnit.results) {
+        int instructionID = pair.first;
+        instructionIDs.push_back(instructionID);
+    }
+
+    fpAddFunctionalUnit.results.clear();
+    return instructionIDs;
+}
+
+vector<int> getIntExecutedInstructions() {
+    vector<int> instructionIDs;
+    for (const auto& pair : intFunctionalUnit.results) {
+        int instructionID = pair.first;
+        instructionIDs.push_back(instructionID);
+    }
+
+    intFunctionalUnit.results.clear();
+    return instructionIDs;
+}
+
+void clearStateForExecutedInstructions(vector<int> instructionIDs, ReservationStation* reservationStation) {
+    for(int instructionID : instructionIDs) {
+        // remove instruction from RES
+        reservationStation->removeRESEntry(instructionID);
+
+        // get ROB entry for this instr
+        ROBEntry* robEntry = reorder_buffer.getROBEntrybyInstructionID(instructionID);
+        // mark ROB entry as done
+        robEntry->done = true;
+
+        string destination_register = robEntry->destination_register;
+    }
+
+    reorder_buffer.clearDoneInstructions();
+}
+
+void writeBackStage() {
+    // get instructions that are executed
+    vector<int> instructionIDs = getIntExecutedInstructions();
+    clearStateForExecutedInstructions(instructionIDs, &intReservationStation);
+
+    instructionIDs = getFPAddExecutedInstructions();
+    clearStateForExecutedInstructions(instructionIDs, &fpAdd);
+
+    instructionIDs = getFPMulExecutedInstructions();
+    clearStateForExecutedInstructions(instructionIDs, &fpMul);
+
+    instructionIDs = getFPDivExecutedInstructions();
+    clearStateForExecutedInstructions(instructionIDs, &fpDiv);
+}
+
+void decodeInstructions() {
     for (int i = 0; i < NR; i++) {
         if (!instruction_queue.hasNextInstruction()) {
             return;
@@ -329,6 +397,11 @@ void executeStage() {
     executeFPDivInstructions();
 }
 
+void commitStage() {
+    // move ROB pointers for done instructions in ROB
+
+}
+
 void startProcessing() {
     int cycle = 1;
     reorder_buffer = ROB(NR);
@@ -336,16 +409,19 @@ void startProcessing() {
     while (true) {
         cout << "******** Executing cycle " + to_string(cycle) + " *********" << std::endl;
 
+        // write back
+        writeBackStage();
+
         // execute with forwarding
         executeStage();
 
         // decode instructions fetched during the previous cycle's fetch stage
-        decodeInstructions(reorder_buffer);
+        decodeInstructions();
 
         // fetch stage
         fetchInstructions(((cycle - 1) * NF) + 1);
 
-        if (reorder_buffer.isEmpty() || cycle == 100) {
+        if (cycle > 1 && (reorder_buffer.isEmpty() || cycle == 100)) {
             break;
         }
 

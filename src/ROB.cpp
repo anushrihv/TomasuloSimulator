@@ -63,3 +63,13 @@ int ROB::getROBIDbyInstructionID(int instructionID) {
 
     return -1;
 }
+
+void ROB::clearDoneInstructions() {
+    for(int i=start; rob_entries[i].done && i!=end; i=(i+1)%size) {
+        start = (i+1)%size;
+    }
+}
+
+ROBEntry ROB::getAndClearNextDoneInstruction() {
+
+}

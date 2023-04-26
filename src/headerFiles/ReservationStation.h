@@ -20,6 +20,7 @@ public:
     void addReservationStationEntry(const ReservationStationEntry& reservationStationEntry);
     vector<ReservationStationEntry*> getReadyReservationStationEntries();
     void updateRESEntriesWaitingOnROB(const string& rob, float value);
+    void removeRESEntry(int instructionID);
 };
 
 
